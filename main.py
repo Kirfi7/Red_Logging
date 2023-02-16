@@ -17,8 +17,6 @@ def sender(for_chat_id, message_text):
         "chat_id": for_chat_id,
         "message": message_text,
         "random_id": 0,
-        "disable_mentions": 1,
-        "dont_parse_links": 1
     })
 
     # last_message = vk_session.method("messages.getHistory", {
@@ -34,47 +32,48 @@ def sender(for_chat_id, message_text):
     #     "dont_parse_links": 1
     # })
 
+
 while True:
     try:
         for event in lp.listen():
-            if event.type == VkBotEventType.MESSAGE_NEW and event.from_chat:
-                chat_id = event.chat_id
-                message = event.obj['message']
-                # text = message['text']
-                # payload = json.loads(event.object.payload)
+            if event.type == VkBotEventType.MESSAGE_EVENT:
+
+                admin_id = event.obj["user_id"]
+
+                if "reconnect" in event.object.payload.get('type'):
+                    sender(2, f"[id{admin_id}|Админ] перезаходит на сервер (тестовое сообщение)")
+
+                elif "disconnect" in event.object.payload.get('type'):
+                    sender(2, f"[id{admin_id}|Админ] вышел с сервера (тестовое сообщение)")
+
+                elif "connect" in event.object.payload.get('type'):
+                    sender(2, f"[id{admin_id}|Админ] зашел на сервер (тестовое сообщение)")
+
+            if event.type == VkBotEventType.MESSAGE_NEW and event.from_chat and event.chat_id == CONST:
+
                 text = event.object.message['text']
                 user_id = event.object.message['from_id']
-                message_id = event.object.message['conversation_message_id']
 
-                if chat_id == CONST and text == "enter":
-                    pass
-
-                elif chat_id == CONST and text == "reenter":
-                    pass
-
-                elif chat_id == CONST and text == "exit":
-                    pass
-
-                elif str(user_id) in DEV and text == "add_buttons":
+                if str(user_id) in DEV and text == "add_buttons":
                     keyboard = VkKeyboard(inline=False, one_time=False)
-                    keyboard.add_button(
+                    keyboard.add_callback_button(
                         label="Зашёл",
                         color=VkKeyboardColor.POSITIVE,
-                        payload={"command": "enter"}
+                        payload={"type": f"connect"}
                     )
-                    keyboard.add_button(
+                    keyboard.add_callback_button(
                         label="Перезахожу",
                         color=VkKeyboardColor.PRIMARY,
-                        payload={"command": "reenter"}
+                        payload={"type": f"reconnect"},
                     )
-                    keyboard.add_button(
+                    keyboard.add_callback_button(
                         label="Вышел",
                         color=VkKeyboardColor.NEGATIVE,
-                        payload={"command": "exit"}
+                        payload={"type": f"disconnect"}
                     )
 
                     vk_session.method("messages.send", {
-                        "chat_id": chat_id,
+                        "chat_id": CONST,
                         "message": "Секунду...",
                         "keyboard": keyboard.get_empty_keyboard(),
                         "random_id": 0
