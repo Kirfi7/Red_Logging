@@ -3,7 +3,7 @@ import sqlite3
 
 from vk_api.bot_longpoll import VkBotLongPoll
 
-TOKEN = "vk1.a.Z_w2nL1jQ93q9R1K8cqETf8zttPoJdzYJBC1_5QJQYBTOzfQSfLAmmCjkqeureXhaiQBFzimFLjMGOiumeMrbL8QpwZwZ0QHjBQZc0gfyT47bR5V1OQ1OBxWrCwZkyHl4iboEbBozT4NNym3J3Hh017aBw5dXRLoUNRIf2Zg-MYqf9JiXvJr6y2pvGr_IHQQO7d2O9M_-Hqsg9vfq8goZQ"
+TOKEN = "vk1.a.y7jZVoqd0_HqNWZTEzS6hLwEp9Rb9Yu5I7DPc7hWXk5UB5qP7d9bpIFZVBJL6iaAcsvS5xKAN5CnQYSNXX89TBXCuK7cS1NOfnMePmQ6-d5dmtDz_rGRq4K4DtrImAUvSqdoopX_7Hs4Rq2fZx1-PR1GMN_hwos5VgKUgVcPeoU1x_0dtsj65oBp9U_NuYAnbogGdMdUS-Fy-Tzr0p4OCg"
 # group token
 
 DEV = ["534422651", "468509613"]

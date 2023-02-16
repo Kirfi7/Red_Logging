@@ -1,6 +1,7 @@
 import time
 import vk_api
 import sqlite3
+import json
 
 from cfg import TOKEN, DEV, STAFF, CONST
 from vk_api.bot_longpoll import VkBotLongPoll, VkBotEventType
@@ -15,41 +16,61 @@ def sender(for_chat_id, message_text):
     vk_session.method("messages.send", {
         "chat_id": for_chat_id,
         "message": message_text,
-        "random_id": 0
+        "random_id": 0,
+        "disable_mentions": 1,
+        "dont_parse_links": 1
     })
 
+    # last_message = vk_session.method("messages.getHistory", {
+    #     "chat_id": for_chat_id,
+    #     "count": 1
+    # })["items"][0]
+    # message_id = last_message["id"]
+    # edited_message = last_message["text"].replace("@red.bottle", "")
+    # vk_session.method("messages.edit", {
+    #     "chat_id": for_chat_id,
+    #     "message_id": message_id,
+    #     "message": edited_message,
+    #     "dont_parse_links": 1
+    # })
 
 while True:
     try:
         for event in lp.listen():
             if event.type == VkBotEventType.MESSAGE_NEW and event.from_chat:
                 chat_id = event.chat_id
+                message = event.obj['message']
+                # text = message['text']
+                # payload = json.loads(event.object.payload)
                 text = event.object.message['text']
                 user_id = event.object.message['from_id']
                 message_id = event.object.message['conversation_message_id']
 
-                if chat_id == CONST and "Зашёл" in text:
+                if chat_id == CONST and text == "enter":
                     pass
 
-                elif chat_id == CONST and "Перезахожу" in text:
+                elif chat_id == CONST and text == "reenter":
                     pass
 
-                elif chat_id == CONST and "Вышел" in text:
+                elif chat_id == CONST and text == "exit":
                     pass
 
                 elif str(user_id) in DEV and text == "add_buttons":
                     keyboard = VkKeyboard(inline=False, one_time=False)
                     keyboard.add_button(
                         label="Зашёл",
-                        color=VkKeyboardColor.POSITIVE
+                        color=VkKeyboardColor.POSITIVE,
+                        payload={"command": "enter"}
                     )
                     keyboard.add_button(
                         label="Перезахожу",
-                        color=VkKeyboardColor.PRIMARY
+                        color=VkKeyboardColor.PRIMARY,
+                        payload={"command": "reenter"}
                     )
                     keyboard.add_button(
                         label="Вышел",
-                        color=VkKeyboardColor.NEGATIVE
+                        color=VkKeyboardColor.NEGATIVE,
+                        payload={"command": "exit"}
                     )
 
                     vk_session.method("messages.send", {
