@@ -1,5 +1,6 @@
 import vk_api
 import json
+import asyncio
 
 from db_func import *
 from table_pars import reset_table
@@ -11,9 +12,13 @@ vk_session = vk_api.VkApi(token=TOKEN)
 lp = VkBotLongPoll(vk_session, 218860473)
 vk = vk_session.get_api()
 
+async def reset_table_and_sender():
+    reset_table()
+    await sender(CONST, f"База данных обновлена")
 
-def sender(for_chat_id, message_text):
-    vk_session.method("messages.send", {
+
+async def sender(for_chat_id, message_text):
+    await vk_session.method("messages.send", {
         "chat_id": for_chat_id,
         "message": message_text,
         "random_id": 0,
@@ -28,7 +33,7 @@ while True:
                 admin_id = event.obj['user_id']
                 nick = get_nick(admin_id)
 
-                if "reconnect" in event.object.payload.get('call_back'):
+                if "re" in event.object.payload.get('call_back'):
                     if online(admin_id) == 1:
                         sender(CONST, f"🔄 {nick} перезаходит на сервер!\n\n{get_online()}")
                     else:
@@ -38,7 +43,7 @@ while True:
                             peer_id=event.object.peer_id,
                             event_data=json.dumps({"type": "show_snackbar", "text": "Ошибка, вы ещё не на сервере!"}))
 
-                elif "disconnect" in event.object.payload.get('call_back'):
+                elif "dis" in event.object.payload.get('call_back'):
                     if online(admin_id) == 1:
                         del_online(admin_id)
                         sender(CONST, f"⏹ {nick} вышел с сервера!\n\n{get_online()}")
@@ -49,7 +54,7 @@ while True:
                             peer_id=event.object.peer_id,
                             event_data=json.dumps({"type": "show_snackbar", "text": "Ошибка, вы ещё не на сервере!"}))
 
-                elif "connect" in event.object.payload.get('call_back'):
+                elif "co" in event.object.payload.get('call_back'):
                     if online(admin_id) == 0:
                         add_online(admin_id)
                         sender(CONST, f"▶️ {nick} зашёл на сервер!\n\n{get_online()}")
@@ -85,18 +90,18 @@ while True:
                             label="Зашёл",
                             color=VkKeyboardColor.POSITIVE,
                             payload={
-                                "call_back": "connect"
+                                "call_back": "co"
                             }
                         )
                         keyboard.add_callback_button(
                             label="Перезахожу",
                             color=VkKeyboardColor.PRIMARY,
-                            payload={"call_back": "reconnect"},
+                            payload={"call_back": "re"},
                         )
                         keyboard.add_callback_button(
                             label="Вышел",
                             color=VkKeyboardColor.NEGATIVE,
-                            payload={"call_back": "disconnect"}
+                            payload={"call_back": "dis"}
                         )
 
                         vk_session.method("messages.send", {
@@ -112,8 +117,8 @@ while True:
                             "random_id": 0
                         })
 
-                        reset_table()
-                        sender(CONST, f"База данных обновлена")
+                        asyncio.get_event_loop().run_until_complete(reset_table_and_sender())
+                        # asyncio.run(reset_table_and_sender())
 
     except Exception as error:
         print(error)
