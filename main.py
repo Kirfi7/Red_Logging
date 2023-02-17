@@ -16,6 +16,20 @@ async def reset_table_and_sender():
     reset_table()
     await sender(CONST, f"База данных обновлена")
 
+async def relog_server():
+    await sender(CONST, f"🔄 {nick} перезаходит на сервер!\n\n{get_online()}")
+
+async def go_out_server():
+    await sender(CONST, f"⏹ {nick} вышел с сервера!\n\n{get_online()}")
+
+async def go_to_server():
+    await sender(CONST, f"▶️ {nick} зашёл на сервер!\n\n{get_online()}")
+
+async def error():
+    await sender(CONST, f"{to_id}!")
+
+async def on_server():
+    await sender(CONST, f"[id{to_id}|Пользователь] теперь {is_online}")
 
 async def sender(for_chat_id, message_text):
     await vk_session.method("messages.send", {
@@ -35,7 +49,7 @@ while True:
 
                 if "re" in event.object.payload.get('call_back'):
                     if online(admin_id) == 1:
-                        sender(CONST, f"🔄 {nick} перезаходит на сервер!\n\n{get_online()}")
+                        asyncio.get_event_loop().run_until_complete(relog_server())
                     else:
                         vk.messages.sendMessageEventAnswer(
                             event_id=event.object.event_id,
@@ -46,7 +60,7 @@ while True:
                 elif "dis" in event.object.payload.get('call_back'):
                     if online(admin_id) == 1:
                         del_online(admin_id)
-                        sender(CONST, f"⏹ {nick} вышел с сервера!\n\n{get_online()}")
+                        asyncio.get_event_loop().run_until_complete(go_out_server())
                     else:
                         vk.messages.sendMessageEventAnswer(
                             event_id=event.object.event_id,
@@ -57,7 +71,7 @@ while True:
                 elif "co" in event.object.payload.get('call_back'):
                     if online(admin_id) == 0:
                         add_online(admin_id)
-                        sender(CONST, f"▶️ {nick} зашёл на сервер!\n\n{get_online()}")
+                        asyncio.get_event_loop().run_until_complete(go_to_server())
                     else:
                         vk.messages.sendMessageEventAnswer(
                             event_id=event.object.event_id,
@@ -77,12 +91,12 @@ while True:
                         to_id = get_to(event.object.message)
 
                         if to_id == 0:
-                            sender(CONST, f"{to_id}!")
+                            asyncio.get_event_loop().run_until_complete(error())
 
                         else:
                             changed_online = change_online(to_id)
                             is_online = "онлайн" if changed_online == 1 else "оффлайн"
-                            sender(CONST, f"[id{to_id}|Пользователь] теперь {is_online}")
+                            asyncio.get_event_loop().run_until_complete(on_server())
 
                     elif cmd == "reset":
                         keyboard = VkKeyboard(inline=False, one_time=False)
