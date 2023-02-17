@@ -74,10 +74,13 @@ def get_online():
     online_list = cursor.execute(f"SELECT vk_id, nick_name, time FROM main WHERE online = '{1}'").fetchall()
 
     uix_now = int(str(datetime.datetime.now().timestamp()).split('.')[0])
-    message = "Список администрации онлайн:\n\n"
+    message = "Список администрации онлайн:\n"
+    k = 0
     for admin in online_list:
+        k += 1
         message += f"— [id{admin[0]}|{admin[1]}] | Минут в сети: {(uix_now - int(admin[2])) // 60}\n"
 
+    message += f"Всего администраторов: {k}"
     return message
 
 

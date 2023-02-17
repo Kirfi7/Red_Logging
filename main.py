@@ -30,7 +30,7 @@ while True:
 
                 if "reconnect" in event.object.payload.get('call_back'):
                     if online(admin_id) == 1:
-                        sender(CONST, f"🔄 {nick} перезаходит на сервер!\n{get_online()}")
+                        sender(CONST, f"🔄 {nick} перезаходит на сервер!\n\n{get_online()}")
                     else:
                         vk.messages.sendMessageEventAnswer(
                             event_id=event.object.event_id,
@@ -41,7 +41,7 @@ while True:
                 elif "disconnect" in event.object.payload.get('call_back'):
                     if online(admin_id) == 1:
                         del_online(admin_id)
-                        sender(CONST, f"⏹ {nick} вышел с сервера!\n{get_online()}")
+                        sender(CONST, f"⏹ {nick} вышел с сервера!\n\n{get_online()}")
                     else:
                         vk.messages.sendMessageEventAnswer(
                             event_id=event.object.event_id,
@@ -52,7 +52,7 @@ while True:
                 elif "connect" in event.object.payload.get('call_back'):
                     if online(admin_id) == 0:
                         add_online(admin_id)
-                        sender(CONST, f"▶️ {nick} зашёл на сервер!\n{get_online()}")
+                        sender(CONST, f"▶️ {nick} зашёл на сервер!\n\n{get_online()}")
                     else:
                         vk.messages.sendMessageEventAnswer(
                             event_id=event.object.event_id,
