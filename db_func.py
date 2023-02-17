@@ -11,16 +11,16 @@ def get_nick(user_id):
     return nick_name
 
 
-async def online(user_id):
+def online(user_id):
     database = sqlite3.connect("database.db")
     cursor = database.cursor()
-    status = await cursor.execute(f"SELECT online FROM main WHERE vk_id = '{user_id}'").fetchone()[0]
+    status = cursor.execute(f"SELECT online FROM main WHERE vk_id = '{user_id}'").fetchone()[0]
     database.commit()
     database.close()
-    return str(status)
+    return int(status)
 
 
-async def add_online(user_id):
+def add_online(user_id):
     database = sqlite3.connect("database.db")
     cursor = database.cursor()
     cursor.execute(f"UPDATE main SET online = '{1}' WHERE vk_id = '{user_id}'")
@@ -32,16 +32,19 @@ async def add_online(user_id):
     database.close()
 
 
-async def del_online(user_id):
+def del_online(user_id):
     database = sqlite3.connect("database.db")
     cursor = database.cursor()
     cursor.execute(f"UPDATE main SET online = '{0}' WHERE vk_id = '{user_id}'")
+    time = int(cursor.execute(f"SELECT time FROM main WHERE vk_id = '{user_id}'").fetchone()[0])
 
-    time = 0
+    uix_now = int(str(datetime.datetime.now().timestamp()).split('.')[0])
+    new_time = 0
 
-    cursor.execute(f"UPDATE main SET time = '{time}' WHERE vk_id = '{user_id}'")
+    cursor.execute(f"UPDATE main SET time = '{new_time}' WHERE vk_id = '{user_id}'")
     database.commit()
     database.close()
+    return (uix_now - time) // 60
 
 
 def clear_online():
@@ -74,14 +77,14 @@ def get_online():
     online_list = cursor.execute(f"SELECT vk_id, nick_name, time FROM main WHERE online = '{1}'").fetchall()
 
     uix_now = int(str(datetime.datetime.now().timestamp()).split('.')[0])
-    message = "Список администрации онлайн:\n"
+    message = "📶 Список администрации онлайн:\n"
     k = 0
     for admin in online_list:
         k += 1
         message += f"— [id{admin[0]}|{admin[1]}] | Минут в сети: {(uix_now - int(admin[2])) // 60}\n"
 
-    message += f"Всего администраторов: {k}"
-    return message
+    message += f"\n🔟 Всего администраторов: {k}"
+    return message, k
 
 
 def get_to(message):

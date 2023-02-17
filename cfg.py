@@ -9,6 +9,8 @@ PREFIX = ["/", "!", "+"]
 
 CONST = 2
 
+TYPES = ["dis", "co", "re"]
+
 vk_session = vk_api.VkApi(token=TOKEN)
 
 

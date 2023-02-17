@@ -1,6 +1,7 @@
-import vk_api
 import json
-import asyncio
+import time
+
+import vk_api
 
 from db_func import *
 from table_pars import reset_table
@@ -12,137 +13,151 @@ vk_session = vk_api.VkApi(token=TOKEN)
 lp = VkBotLongPoll(vk_session, 218860473)
 vk = vk_session.get_api()
 
-# to_id = "0"
-# global nick
-#
-# global is_online
 
-async def reset_table_and_sender():
-    reset_table()
-    await sender(CONST, f"База данных обновлена")
-
-
-async def relog_server():
-    await sender(CONST, f"🔄 {nick} перезаходит на сервер!\n\n{get_online()}")
-
-
-async def go_out_server():
-    await sender(CONST, f"⏹ {nick} вышел с сервера!\n\n{get_online()}")
-
-
-async def go_to_server():
-    await sender(CONST, f"▶️ {nick} зашёл на сервер!\n\n{get_online()}")
-
-
-async def error():
-    await sender(CONST, f"{to_id}!")
-
-
-async def on_server():
-    await sender(CONST, f"[id{to_id}|Пользователь] теперь {is_online}")
-
-
-async def sender(for_chat_id, message_text):
-    await vk_session.method("messages.send", {
+def sender(for_chat_id, message_text):
+    vk_session.method("messages.send", {
         "chat_id": for_chat_id,
         "message": message_text,
         "random_id": 0,
     })
 
 
+def send_keyboard(first_message, second_message):
+    kb = VkKeyboard(inline=False, one_time=False)
+    kb.add_callback_button("Зашёл", VkKeyboardColor.POSITIVE, {"call_back": "connect"})
+    kb.add_callback_button("Перезахожу", VkKeyboardColor.PRIMARY, {"call_back": "reconnect"})
+    kb.add_callback_button("Вышел", VkKeyboardColor.NEGATIVE, {"call_back": "disconnect"})
 
-for event in lp.listen():
-    if event.type == VkBotEventType.MESSAGE_EVENT:
+    vk_session.method("messages.send", {
+        "chat_id": CONST,
+        "message": first_message,
+        "random_id": 0,
+        "keyboard": kb.get_empty_keyboard()
+    })
+    time.sleep(0.1)
+    vk_session.method("messages.send", {
+        "chat_id": CONST,
+        "message": second_message,
+        "random_id": 0,
+        "keyboard": kb.get_keyboard()
+    })
 
-        admin_id = str(event.obj['user_id'])
-        nick = str(get_nick(admin_id))
 
-        if "re" in event.object.payload.get('call_back'):
-            if online(admin_id) == "1":
-                asyncio.get_event_loop().run_until_complete(relog_server())
-            else:
-                vk.messages.sendMessageEventAnswer(
-                    event_id=event.object.event_id,
-                    user_id=event.object.user_id,
-                    peer_id=event.object.peer_id,
-                    event_data=json.dumps({"type": "show_snackbar", "text": "Ошибка, вы ещё не на сервере!"}))
+def chat_zov(chat):
+    members = vk.messages.getConversationMembers(peer_id=2_000_000_000 + chat)['items']
+    msg = f'⚠ На сервере меньше 8-ми администраторов ⚠\n\n'
+    for member in members:
+        if not ('-' in str(member['member_id'])):
+            msg += f"[id{member['member_id']}|👤]"
+    msg = msg + f"\n\n❗️ ЗАЙТИ НА СЕРВЕР В СРОЧНОМ ПОРЯДКЕ ❗️"
+    sender(chat, msg)
 
-        elif "dis" in event.object.payload.get('call_back'):
-            if online(admin_id) == "1":
-                del_online(admin_id)
-                asyncio.get_event_loop().run_until_complete(go_out_server())
-            else:
-                vk.messages.sendMessageEventAnswer(
-                    event_id=event.object.event_id,
-                    user_id=event.object.user_id,
-                    peer_id=event.object.peer_id,
-                    event_data=json.dumps({"type": "show_snackbar", "text": "Ошибка, вы ещё не на сервере!"}))
 
-        elif "co" in event.object.payload.get('call_back'):
-            if online(admin_id) == "0":
-                add_online(admin_id)
-                asyncio.get_event_loop().run_until_complete(go_to_server())
-            else:
-                vk.messages.sendMessageEventAnswer(
-                    event_id=event.object.event_id,
-                    user_id=event.object.user_id,
-                    peer_id=event.object.peer_id,
-                    event_data=json.dumps({"type": "show_snackbar", "text": "Ошибка, вы уже на сервере!"}))
+while True:
+    try:
+        for event in lp.listen():
+            if event.type == VkBotEventType.MESSAGE_EVENT:
 
-    if event.type == VkBotEventType.MESSAGE_NEW and event.from_chat and event.chat_id == CONST:
+                admin_id = event.obj['user_id']
+                nick = get_nick(admin_id)
 
-        text = event.object.message['text']
-        user_id = event.object.message['from_id']
+                if "reconnect" in event.object.payload.get('call_back'):
+                    if online(admin_id) == 1:
+                        array = get_online()
+                        send_keyboard(f"🔔 {nick} перезаходит на сервер! 🔔", array[0])
+                        if array[1] < 8:
+                            chat_zov(CONST)
+                            # chat_zov(CONST + 1)
+                    else:
+                        vk.messages.sendMessageEventAnswer(
+                            event_id=event.object.event_id,
+                            user_id=event.object.user_id,
+                            peer_id=event.object.peer_id,
+                            event_data=json.dumps({"type": "show_snackbar", "text": "Ошибка, вы ещё не на сервере!"}))
 
-        if text[0] in PREFIX and str(user_id) in DEV:
-            cmd = text[1:]
+                elif "disconnect" in event.object.payload.get('call_back'):
+                    if online(admin_id) == 1:
+                        array = get_online()
+                        minutes = del_online(admin_id)
+                        send_keyboard(f"🔔 {nick} вышел с сервера!\n⏰ Минут в онлайне до выхода: {minutes}", array[0])
+                        if array[1] < 8:
+                            chat_zov(CONST)
+                            # chat_zov(CONST + 1)
+                    else:
+                        vk.messages.sendMessageEventAnswer(
+                            event_id=event.object.event_id,
+                            user_id=event.object.user_id,
+                            peer_id=event.object.peer_id,
+                            event_data=json.dumps({"type": "show_snackbar", "text": "Ошибка, вы ещё не на сервере!"}))
 
-            if cmd == "change":
-                to_id = str(get_to(event.object.message))
+                elif "connect" in event.object.payload.get('call_back'):
+                    if online(admin_id) == 0:
+                        array = get_online()
+                        add_online(admin_id)
+                        send_keyboard(f"🔔 {nick} перезаходит на сервер! 🔔", array[0])
+                        if array[1] < 8:
+                            chat_zov(CONST)
+                            # chat_zov(CONST + 1)
+                    else:
+                        vk.messages.sendMessageEventAnswer(
+                            event_id=event.object.event_id,
+                            user_id=event.object.user_id,
+                            peer_id=event.object.peer_id,
+                            event_data=json.dumps({"type": "show_snackbar", "text": "Ошибка, вы уже на сервере!"}))
 
-                if to_id == "0":
-                    asyncio.get_event_loop().run_until_complete(error())
+            elif event.type == VkBotEventType.MESSAGE_NEW and event.from_chat:
 
-                else:
-                    changed_online = change_online(to_id)
-                    is_online = "онлайн" if changed_online == 1 else "оффлайн"
-                    asyncio.get_event_loop().run_until_complete(on_server())
+                text = event.object.message['text']
+                user_id = event.object.message['from_id']
 
-            elif cmd == "reset":
-                keyboard = VkKeyboard(inline=False, one_time=False)
-                keyboard.add_callback_button(
-                    label="Зашёл",
-                    color=VkKeyboardColor.POSITIVE,
-                    payload={
-                        "call_back": "co"
-                    }
-                )
-                keyboard.add_callback_button(
-                    label="Перезахожу",
-                    color=VkKeyboardColor.PRIMARY,
-                    payload={"call_back": "re"},
-                )
-                keyboard.add_callback_button(
-                    label="Вышел",
-                    color=VkKeyboardColor.NEGATIVE,
-                    payload={"call_back": "dis"}
-                )
+                if text[0] in PREFIX and str(user_id) in DEV:
+                    cmd = text[1:]
 
-                vk_session.method("messages.send", {
-                    "chat_id": CONST,
-                    "message": "Секунду...",
-                    "keyboard": keyboard.get_empty_keyboard(),
-                    "random_id": 0
-                })
-                vk_session.method("messages.send", {
-                    "chat_id": CONST,
-                    "message": "Обновление БД...",
-                    "keyboard": keyboard.get_keyboard(),
-                    "random_id": 0
-                })
+                    if cmd == "change":
+                        to_id = get_to(event.object.message)
 
-                asyncio.get_event_loop().run_until_complete(reset_table_and_sender())
-                # asyncio.run(reset_table_and_sender())
+                        if to_id == 0:
+                            sender(CONST, f"{to_id}!")
 
-    # except Exception as error:
-    #     print(error)
+                        else:
+                            changed_online = change_online(to_id)
+                            is_online = "онлайн" if changed_online == 1 else "оффлайн"
+                            sender(CONST, f"[id{to_id}|Пользователь] теперь {is_online}")
+
+                    elif cmd == "help":
+                        sender(CONST, str(open("help.txt", "r", encoding="utf-8").readline()))
+
+                    elif cmd == "restart":
+                        reset_table()
+                        sender(CONST, f"База данных обновлена")
+
+                    elif cmd == "reset":
+                        keyboard = VkKeyboard(inline=False, one_time=False)
+                        keyboard.add_callback_button(
+                            label="Зашёл",
+                            color=VkKeyboardColor.POSITIVE,
+                            payload={"call_back": "connect"})
+                        keyboard.add_callback_button(
+                            label="Перезахожу",
+                            color=VkKeyboardColor.PRIMARY,
+                            payload={"call_back": "reconnect"})
+                        keyboard.add_callback_button(
+                            label="Вышел",
+                            color=VkKeyboardColor.NEGATIVE,
+                            payload={"call_back": "disconnect"})
+
+                        vk_session.method("messages.send", {
+                            "chat_id": CONST,
+                            "message": "Секунду...",
+                            "keyboard": keyboard.get_empty_keyboard(),
+                            "random_id": 0
+                        })
+                        vk_session.method("messages.send", {
+                            "chat_id": CONST,
+                            "message": "Кнопки были обновлены",
+                            "keyboard": keyboard.get_keyboard(),
+                            "random_id": 0
+                        })
+
+    except Exception as error:
+        print(error)
