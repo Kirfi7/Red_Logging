@@ -43,12 +43,3 @@ def reset_table():
         except ValueError:
             pass
 
-
-while True:
-    print("123")
-    time.sleep(1)
-    now_time = datetime.datetime.now()
-    if now_time.hour == 5 and now_time.minute == 0 and now_time.second == 10:
-        reset_table()
-        time.sleep(30)
-

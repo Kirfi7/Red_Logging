@@ -124,7 +124,7 @@ while True:
                             is_online = "онлайн" if changed_online == 1 else "оффлайн"
                             sender(CONST, f"[id{to_id}|Пользователь] теперь {is_online}")
 
-                    elif cmd == "help":
+                    elif cmd == "cmd":
                         sender(CONST, str(open("help.txt", "r", encoding="utf-8").readline()))
 
                     elif cmd == "restart":
