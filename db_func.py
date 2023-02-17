@@ -17,7 +17,7 @@ def online(user_id):
     status = cursor.execute(f"SELECT online FROM main WHERE vk_id = '{user_id}'").fetchone()[0]
     database.commit()
     database.close()
-    return int(status)
+    return str(status)
 
 
 def add_online(user_id):
@@ -86,10 +86,10 @@ def get_online():
 
 def get_to(message):
     if "reply_message" in message:
-        return message['reply_message']['from_id']
+        return str(message['reply_message']['from_id'])
 
     elif not(message['fwd_messages'] is None):
-        return message['fwd_messages'][0]['from_id']
+        return str(message['fwd_messages'][0]['from_id'])
 
     else:
-        return 0
+        return "0"
