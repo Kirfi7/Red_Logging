@@ -11,16 +11,16 @@ def get_nick(user_id):
     return nick_name
 
 
-def online(user_id):
+async def online(user_id):
     database = sqlite3.connect("database.db")
     cursor = database.cursor()
-    status = cursor.execute(f"SELECT online FROM main WHERE vk_id = '{user_id}'").fetchone()[0]
+    status = await cursor.execute(f"SELECT online FROM main WHERE vk_id = '{user_id}'").fetchone()[0]
     database.commit()
     database.close()
     return str(status)
 
 
-def add_online(user_id):
+async def add_online(user_id):
     database = sqlite3.connect("database.db")
     cursor = database.cursor()
     cursor.execute(f"UPDATE main SET online = '{1}' WHERE vk_id = '{user_id}'")
@@ -32,7 +32,7 @@ def add_online(user_id):
     database.close()
 
 
-def del_online(user_id):
+async def del_online(user_id):
     database = sqlite3.connect("database.db")
     cursor = database.cursor()
     cursor.execute(f"UPDATE main SET online = '{0}' WHERE vk_id = '{user_id}'")
