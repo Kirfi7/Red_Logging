@@ -1,5 +1,4 @@
 import json
-import time
 
 import vk_api
 
@@ -34,7 +33,6 @@ def send_keyboard(first_message, second_message):
         "random_id": 0,
         "keyboard": kb.get_empty_keyboard()
     })
-    time.sleep(0.1)
     vk_session.method("messages.send", {
         "chat_id": CONST,
         "message": second_message,
@@ -49,7 +47,7 @@ def chat_zov(chat):
     for member in members:
         if not ('-' in str(member['member_id'])):
             msg += f"[id{member['member_id']}|👤]"
-    msg = msg + f"\n\n❗️ ЗАЙТИ НА СЕРВЕР В СРОЧНОМ ПОРЯДКЕ ❗️"
+    msg += f"\n\n❗️ ЗАЙТИ НА СЕРВЕР В СРОЧНОМ ПОРЯДКЕ ❗️"
     sender(chat, msg)
 
 
@@ -67,7 +65,7 @@ while True:
                         send_keyboard(f"🔔 {nick} перезаходит на сервер! 🔔", array[0])
                         if array[1] < 8:
                             chat_zov(CONST)
-                            # chat_zov(CONST + 1)
+                            chat_zov(CONST + 1)
                     else:
                         vk.messages.sendMessageEventAnswer(
                             event_id=event.object.event_id,
@@ -77,12 +75,12 @@ while True:
 
                 elif "disconnect" in event.object.payload.get('call_back'):
                     if online(admin_id) == 1:
-                        array = get_online()
                         minutes = del_online(admin_id)
-                        send_keyboard(f"🔔 {nick} вышел с сервера!\n⏰ Минут в онлайне до выхода: {minutes}", array[0])
+                        array = get_online()
+                        send_keyboard(f"🔔 {nick} вышел с сервера!\n Количество минут в онлайне до выхода: {minutes}", array[0])
                         if array[1] < 8:
                             chat_zov(CONST)
-                            # chat_zov(CONST + 1)
+                            chat_zov(CONST + 1)
                     else:
                         vk.messages.sendMessageEventAnswer(
                             event_id=event.object.event_id,
@@ -92,12 +90,12 @@ while True:
 
                 elif "connect" in event.object.payload.get('call_back'):
                     if online(admin_id) == 0:
-                        array = get_online()
                         add_online(admin_id)
-                        send_keyboard(f"🔔 {nick} перезаходит на сервер! 🔔", array[0])
+                        array = get_online()
+                        send_keyboard(f"🔔 {nick} зашёл на сервер! 🔔", array[0])
                         if array[1] < 8:
                             chat_zov(CONST)
-                            # chat_zov(CONST + 1)
+                            chat_zov(CONST + 1)
                     else:
                         vk.messages.sendMessageEventAnswer(
                             event_id=event.object.event_id,

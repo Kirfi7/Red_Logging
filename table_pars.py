@@ -1,7 +1,4 @@
-import datetime
-
 import sqlite3
-import time
 
 import gspread
 
