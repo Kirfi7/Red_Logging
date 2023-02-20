@@ -77,7 +77,9 @@ while True:
                     if online(admin_id) == 1:
                         minutes = del_online(admin_id)
                         array = get_online()
-                        send_keyboard(f"🔔 {nick} вышел с сервера!\n Количество минут в онлайне до выхода: {minutes}", array[0])
+                        send_keyboard(
+                            f"🔔 {nick} вышел с сервера!\n Количество минут в онлайне до выхода: {minutes}", array[0]
+                        )
                         if array[1] < 8:
                             chat_zov(CONST)
                             chat_zov(CONST + 1)
@@ -115,12 +117,12 @@ while True:
                         to_id = get_to(event.object.message)
 
                         if to_id == 0:
-                            sender(CONST, f"{to_id}!")
+                            sender(CONST, f"Ошибка!")
 
                         else:
                             changed_online = change_online(to_id)
                             is_online = "онлайн" if changed_online == 1 else "оффлайн"
-                            sender(CONST, f"[id{to_id}|Пользователь] теперь {is_online}")
+                            sender(CONST, f"[id{to_id}|Пользователь] теперь {is_online}!")
 
                     elif cmd == "cmd":
                         sender(CONST, str(open("help.txt", "r", encoding="utf-8").readline()))

@@ -1,14 +1,7 @@
 import sqlite3
-
 import gspread
-
 from oauth2client.service_account import ServiceAccountCredentials
 
-# db = sqlite3.connect("database.db")
-# c = db.cursor()
-# c.execute(f"CREATE TABLE main (nick_name TEXT, vk_id INTEGER, online INTEGER, time INTEGER)")
-# db.commit()
-# db.close()
 
 SCOPE = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/spreadsheets",
          "https://www.googleapis.com/auth/drive.file", "https://www.googleapis.com/auth/drive"]
@@ -39,4 +32,3 @@ def reset_table():
 
         except ValueError:
             pass
-
