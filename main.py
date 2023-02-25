@@ -112,7 +112,7 @@ while True:
 
                 text = event.object.message['text']
                 user_id = event.object.message['from_id']
-                print(event.chat_id)
+                chat_id = event.chat_id
 
                 if text[0] in PREFIX and str(user_id) in DEV:
                     cmd = text[1:]
@@ -134,6 +134,15 @@ while True:
                     elif cmd == "restart":
                         reset_table()
                         sender(CONST, f"База данных обновлена")
+
+                    elif cmd == "delete":
+                        kb = VkKeyboard()
+                        vk_session.method("messages.send", {
+                            "chat_id": chat_id,
+                            "message": "+",
+                            "random_id": 0,
+                            "keyboard": kb.get_empty_keyboard()
+                        })
 
                     elif cmd == "reset":
                         keyboard = VkKeyboard(inline=False, one_time=False)
