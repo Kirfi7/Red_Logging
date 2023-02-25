@@ -7,7 +7,7 @@ DEV = ["534422651", "468509613"]
 
 PREFIX = ["/", "!", "+"]
 
-CONST = 3
+CONST = 4
 
 TYPES = ["dis", "co", "re"]
 

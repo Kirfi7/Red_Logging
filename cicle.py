@@ -1,10 +1,21 @@
 import time
 import datetime
 import sqlite3
+import vk_api
 
-from cfg import CONST
-from main import sender
+from cfg import CONST, TOKEN
 from table_pars import reset_table
+
+vk_session = vk_api.VkApi(token=TOKEN)
+
+
+def sender(for_chat_id, message_text):
+    vk_session.method("messages.send", {
+        "chat_id": for_chat_id,
+        "message": message_text,
+        "random_id": 0,
+    })
+
 
 while True:
     time.sleep(0.3)

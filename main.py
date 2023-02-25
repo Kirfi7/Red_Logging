@@ -109,6 +109,7 @@ while True:
 
                 text = event.object.message['text']
                 user_id = event.object.message['from_id']
+                print(event.chat_id)
 
                 if text[0] in PREFIX and str(user_id) in DEV:
                     cmd = text[1:]
