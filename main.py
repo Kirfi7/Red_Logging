@@ -54,6 +54,9 @@ def chat_zov(chat):
 while True:
     try:
         for event in lp.listen():
+
+            now_hour = int(datetime.datetime.now().hour)
+
             if event.type == VkBotEventType.MESSAGE_EVENT:
 
                 admin_id = event.obj['user_id']
@@ -63,7 +66,7 @@ while True:
                     if online(admin_id) == 1:
                         array = get_online()
                         send_keyboard(f"🔔 {nick} перезаходит на сервер! 🔔", array[0])
-                        if array[1] < 8:
+                        if array[1] < 8 and 10 <= now_hour <= 23:
                             chat_zov(CONST)
                             chat_zov(CONST + 1)
                     else:
@@ -80,7 +83,7 @@ while True:
                         send_keyboard(
                             f"🔔 {nick} вышел с сервера!\n Количество минут в онлайне до выхода: {minutes}", array[0]
                         )
-                        if array[1] < 8:
+                        if array[1] < 8 and 10 <= now_hour <= 23:
                             chat_zov(CONST)
                             chat_zov(CONST + 1)
                     else:
@@ -95,7 +98,7 @@ while True:
                         add_online(admin_id)
                         array = get_online()
                         send_keyboard(f"🔔 {nick} зашёл на сервер! 🔔", array[0])
-                        if array[1] < 8:
+                        if array[1] < 8 and 10 <= now_hour <= 23:
                             chat_zov(CONST)
                             chat_zov(CONST + 1)
                     else:
