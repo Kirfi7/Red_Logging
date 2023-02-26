@@ -22,22 +22,22 @@ def sender(for_chat_id, message_text):
 
 
 def send_keyboard(first_message, second_message):
-    kb = VkKeyboard(inline=False, one_time=False)
-    kb.add_callback_button("Зашёл", VkKeyboardColor.POSITIVE, {"call_back": "connect"})
-    kb.add_callback_button("Перезахожу", VkKeyboardColor.PRIMARY, {"call_back": "reconnect"})
-    kb.add_callback_button("Вышел", VkKeyboardColor.NEGATIVE, {"call_back": "disconnect"})
+    k_b = VkKeyboard(inline=False, one_time=False)
+    k_b.add_callback_button("Зашёл", VkKeyboardColor.POSITIVE, {"call_back": "connect"})
+    k_b.add_callback_button("Перезахожу", VkKeyboardColor.PRIMARY, {"call_back": "reconnect"})
+    k_b.add_callback_button("Вышел", VkKeyboardColor.NEGATIVE, {"call_back": "disconnect"})
 
     vk_session.method("messages.send", {
         "chat_id": CONST,
         "message": first_message,
         "random_id": 0,
-        "keyboard": kb.get_empty_keyboard()
+        "keyboard": k_b.get_empty_keyboard()
     })
     vk_session.method("messages.send", {
         "chat_id": CONST,
         "message": second_message,
         "random_id": 0,
-        "keyboard": kb.get_keyboard()
+        "keyboard": k_b.get_keyboard()
     })
 
 
@@ -65,7 +65,7 @@ while True:
                 if "reconnect" in event.object.payload.get('call_back'):
                     if online(admin_id) == 1:
                         array = get_online()
-                        send_keyboard(f"🔔 {nick} перезаходит на сервер! 🔔", array[0])
+                        send_keyboard(f"🔔 [id{admin_id}|{nick}] перезаходит на сервер! 🔔", array[0])
                         if array[1] < 8 and 10 <= now_hour <= 23:
                             chat_zov(CONST)
                             chat_zov(CONST + 1)
@@ -81,7 +81,9 @@ while True:
                         minutes = del_online(admin_id)
                         array = get_online()
                         send_keyboard(
-                            f"🔔 {nick} вышел с сервера!\n Количество минут в онлайне до выхода: {minutes}", array[0]
+                            f"🔔 [id{admin_id}|{nick}] выходит с сервера!"
+                            f"\n Количество минут в онлайне до выхода: {minutes}",
+                            array[0]
                         )
                         if array[1] < 8 and 10 <= now_hour <= 23:
                             chat_zov(CONST)
@@ -97,7 +99,7 @@ while True:
                     if online(admin_id) == 0:
                         add_online(admin_id)
                         array = get_online()
-                        send_keyboard(f"🔔 {nick} зашёл на сервер! 🔔", array[0])
+                        send_keyboard(f"🔔 [id{admin_id}|{nick}] заходит на сервер! 🔔", array[0])
                         if array[1] < 8 and 10 <= now_hour <= 23:
                             chat_zov(CONST)
                             chat_zov(CONST + 1)

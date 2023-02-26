@@ -81,7 +81,7 @@ def get_online():
     k = 0
     for admin in online_list:
         k += 1
-        message += f"— [id{admin[0]}|{admin[1]}] | Минут в сети: {(uix_now - int(admin[2])) // 60}\n"
+        message += f"— {admin[1]} | Минут в сети: {(uix_now - int(admin[2])) // 60}\n"
 
     message += f"\n🔟 Всего администраторов: {k}"
     return message, k
